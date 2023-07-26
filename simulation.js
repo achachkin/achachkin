@@ -1,10 +1,10 @@
 //there are constants that can be changed at will
 
 //size of cell
-let cellSize = 1
+let cellSize = 2
 
 //zoom
-let zoom = 50
+let zoom = 75
 
 //width and height of car
 let width = 6; height = 8
@@ -32,11 +32,11 @@ let massCar = 100, massBody= 25
 let gravityConstant = 9.8
 
 //force Wheels
-let forceWheels = 2000
+let forceWheels = 200
 
 //coefficient of perpendicular and parallel friction
-let coefficientOfPerFriction = 1000000000 
-let coefficientOfParFriction = 1
+let coefficientOfPerFriction = 800
+let coefficientOfParFriction = 0.01
 
 //width and height of wheel
 let widthWheel = 1; heightWheel = 2

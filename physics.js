@@ -40,7 +40,7 @@ class CarWithBody {
     constructor(width= 6, height= 8, maxSteringAngle= 45, lenFromCarToBody= 1,
                 lenFromBodyToCar= 3, maxBodyAngle= 45, widthHook= 0.2, widthBody= 6, heightBody= 8, 
                 mass= 100, massBody= 50, gravityConstant= 9.8, forceWheels= 20, 
-                coefficientOfPerFriction= 1000000000,coefficientOfParFriction = 1, 
+                coefficientOfPerFriction= 100,coefficientOfParFriction = 1, 
                 widthWheel= 1, heightWheel= 2, speedChangeWheelAngle= 5) {
         //задающиеся значения
         //значения машины
@@ -199,15 +199,16 @@ class CarWithBody {
         let frictionTest = poz.scalarProduct(direct)
         let frictionDirect = (frictionTest > 0) ? (1) : ((frictionTest < 0) ? -1 : 0)
         let totalCoefOfFriction = Math.min(Math.abs(frictionTest), coefficient)
+        console.log(frictionTest,coefficient,"calc")
         return -frictionDirect*totalCoefOfFriction
     }
-    calcWheelDelta(direct,poz,angleSpeed,pulse,motor = 0) {
-        //проверка на ортогональность
+    calcWheelDelta(direct,poz,angleSpeed,pulse,mass,motor = 0) {
+        let heft = mass*this.gravityConstant
         let pulseInPoz = this.pulseInPozition(poz,pulse,angleSpeed)
-        let perFriction = this.calcFriction(pulseInPoz,direct.rotate(-90),this.coefficientOfPerFriction*this.gravityConstant)
-        let parFriction = this.calcFriction(pulseInPoz,direct,this.coefficientOfParFriction*this.gravityConstant)
+        let perFriction = this.calcFriction(pulseInPoz,direct.rotate(-90),this.coefficientOfPerFriction*heft)
+        let parFriction = this.calcFriction(pulseInPoz,direct,this.coefficientOfParFriction*heft)
         let notProcessForce = direct.rotate(-90).multiply(perFriction).sum(direct.multiply(parFriction))
-        .sum(direct.multiply(this.forceWheels*motor))
+        .sum(direct.multiply(this.forceWheels*this.gravityConstant*motor))
         return this.processForceCalc(poz,notProcessForce)
     }
     calcGeneralDelta() {
@@ -220,13 +221,13 @@ class CarWithBody {
         for (let i = 0; i < 4;i++) {
             let direct = (i <2) ? this.direction : this.wheelDirection()
             let motor = (i <2) ? this.motor : 0
-            j = this.calcWheelDelta(direct,this.wheels[i],this.angleSpeed,this.pulse,motor)
+            j = this.calcWheelDelta(direct,this.wheels[i],this.angleSpeed,this.pulse,this.mass,motor)
             deltaPulse = deltaPulse.sum(j[0])
             deltaAngleSpeed += j[1]
         } 
         for (let i = 0; i< 2;i++) {
             j = this.calcWheelDelta(this.bodyDirection,this.bodyWheels[i],
-                                    this.bodyAngleSpeed,this.bodyPulse)
+                                    this.bodyAngleSpeed,this.bodyPulse,this.massBody)
             deltaBodyPulse = deltaBodyPulse.sum(j[0])
             deltaBodyAngleSpeed += j[1]
         }
